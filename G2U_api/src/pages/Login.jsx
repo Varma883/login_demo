@@ -1,26 +1,30 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const [emailID, setEmailID] = useState("");
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
- 
-    const handlelogin= async(e) =>{
+  const [error, setError] = useState(""); 
+
+  const handlelogin = async (e) => {
     e.preventDefault();
+    setError('');
     try{
-      await login(emailID, password);
-      alert('Login Succesfull')
-      navigate('/')
+      await login(email,password);
+      alert("Login Succesfull")
+      navigate('/home')
     }
-    catch(err){
-      console.error(err.messsage) 
-      setError("Invalid Username or Password")
+    catch (err) {
+      alert("Login Denaied")
+      setError("Invalid email or password");
     }
-  }
+  };
 
   return (
-    
-     <div className="w-full h-full  flex  justify-center items-center mt-5 mb-5 ">
+    <div className="w-full h-full  flex  justify-center items-center mt-5 mb-5 ">
       <div className="w-[90%]  md:w-[500px] h-[500px] border p-5 rounded-3xl bg-gray-50">
         <div className="flex justify-between items-center">
           <div className="text-xl lg:text-2xl font-bold  flex flex-col gap-0  text-center   ">
@@ -29,27 +33,28 @@ const Login = () => {
               The Store That Gets You
             </small>
           </div>
-
-          
-
-
-
         </div>
         <span className=" ">
           <p className="lg:text-xs text-[10px] text-center mt-3  ">
             Please enter your credentials
           </p>
         </span>
-        
-       <form action="" 
-       onSubmit={handlelogin}
-       className="mx-auto border p-4 w-full mt-2">
-        <div>
-            <h1 className="text-xl lg:text-2xl  flex flex-col gap-0 ms-2 text-center">Welcom Back!!</h1>
-            <p className="lg:text-xs text-[10px] text-center"> Lests get you started</p>
+
+        <form
+          action=""
+          onSubmit={handlelogin}
+          className="mx-auto border p-4 w-full mt-2"
+        >
+          <div>
+            <h1 className="text-xl lg:text-2xl  flex flex-col gap-0 ms-2 text-center">
+              Welcom Back!!
+            </h1>
+            <p className="lg:text-xs text-[10px] text-center">
+              {" "}
+              Lests get you started
+            </p>
           </div>
           <div className=" ">
-           
             <div className="mb-5">
               <label
                 htmlFor="email"
@@ -59,8 +64,8 @@ const Login = () => {
               </label>
               <input
                 type="email"
-                value={emailID}
-                onChange={e=>setEmailID(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 id="email"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="youremailid@domain.com"
@@ -68,7 +73,6 @@ const Login = () => {
               />
             </div>
 
-   
             <div className="mb-5">
               <label
                 htmlFor="password"
@@ -80,7 +84,7 @@ const Login = () => {
                 type="password"
                 value={password}
                 // onchange={e=>setPassword(e.target.value)}
-                onChange={e=>setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 id="password"
                 className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 required
@@ -113,13 +117,12 @@ const Login = () => {
             </div>
 
             <div className="flex justify-between items-center">
-              <Link
-                to={'/home'}
+              <button
                 type="submit"
                 className="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm  lg:w-auto px-5 py-2.5 text-center"
               >
                 Login
-              </Link>
+              </button>
 
               <Link
                 to={"/signup"}
@@ -130,17 +133,9 @@ const Login = () => {
               </Link>
             </div>
           </div>
-
-       </form>
-
+        </form>
       </div>
-
-     
-
     </div>
-
-      
-
   );
 };
 

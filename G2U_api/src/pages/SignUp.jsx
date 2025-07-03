@@ -121,7 +121,7 @@ const SignUp = () => {
             <div className="relative z-0 w-full mb-5 group">
               <input
                 type="tel"
-                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                
                 name="floating_phone"
                 id="floating_phone"
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
@@ -154,12 +154,13 @@ const SignUp = () => {
             </div>
           </div>
           <div className="flex items-center justify-center">
-            <button
-              type="submit"
+            <Link
+              to={'/home'}
+              // type="submit"
               className="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
             >
               Creat Account
-            </button>
+            </Link>
           </div>
         </form>
       </div>
