@@ -1,27 +1,90 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
+
 import { useAuth } from "../context/AuthContext";
 
-const Login = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); 
 
-  const handlelogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    try{
-      await login(email,password);
-      alert("Login Succesfull")
-      navigate('/home')
-    }
-    catch (err) {
-      alert("Login Denaied")
-      setError("Invalid email or password");
-    }
+const Login = () => {
+  const {login} =useAuth()
+  const navigate = useNavigate();
+  const location =useLocation();
+
+  // this for to change the text on the loging button to loggin in....
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  //to store the values dynamically inside the component
+  const [formdata, setFormData]=useState({
+    email: localStorage.getItem('remeberEmail') || "",
+    password:"",
+    remember: false
+  });
+
+  // this is to avoid writing onchange for cleaner code--- need to check
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
   };
+
+  
+
+
+  const [error, setError] = useState(""); 
+  
+  const handlelogin = async(e)=>{
+    e.preventDefault();
+    setIsSubmitting(true)
+   setError('')
+
+   try{ 
+        const response = await axios.post(
+          "https://g2u.mavenerp.in/g2uapi/public/api/login",
+          {
+            email:formdata.email,
+            password:formdata.password,
+          }
+        );
+
+        //to store the token 
+        if(response.data.status){
+          console.log("API login success block reached");
+          toast.success("login succesfull")
+          localStorage.setItem("authToken",response.data.token)
+        
+
+        // Store email if 'Remember me' is checked
+        if(formdata.remember){
+          localStorage.setItem("remeberEmail",formdata.email);
+        }else{
+          localStorage.removeItem("remeberEmail")
+        }
+
+        //call login from context {useAuth}
+        login(response.data.token)
+        console.log("Login response:", response.data);
+
+        //navigate to home page if login succesfull
+        console.log("Navigating to Home...");
+         navigate("/home", { replace: true });
+      } else{
+        toast.error(response.data.message || "login Failed")
+      }
+   }
+   catch(error){
+      toast.error(
+        error.response?.data?.message ||
+        "An error occurred during login. Please try again."
+      );
+
+   }
+    finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="w-full h-full  flex  justify-center items-center mt-5 mb-5 ">
@@ -39,7 +102,8 @@ const Login = () => {
             Please enter your credentials
           </p>
         </span>
-
+        
+        {/* the form starts from here  */}
         <form
           action=""
           onSubmit={handlelogin}
@@ -63,10 +127,11 @@ const Login = () => {
                 Your email
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="email" 
                 id="email"
+                name='email'
+                value={formdata.email}
+                onChange={handleChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="youremailid@domain.com"
                 required
@@ -82,10 +147,10 @@ const Login = () => {
               </label>
               <input
                 type="password"
-                value={password}
-                // onchange={e=>setPassword(e.target.value)}
-                onChange={(e) => setPassword(e.target.value)}
                 id="password"
+                name="password"
+                value={formdata.password}
+                onChange={handleChange}
                 className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 required
               />
@@ -101,6 +166,10 @@ const Login = () => {
                 </div>
                 <label
                   htmlFor="remember"
+                  id="remember"
+                  name="remember"
+                  checked={formdata.remember}
+                  onChange={handleChange}
                   className="ms-2 text-sm font-medium text-gray-900"
                 >
                   Remember me
@@ -119,9 +188,10 @@ const Login = () => {
             <div className="flex justify-between items-center">
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="text-white bg-black hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm  lg:w-auto px-5 py-2.5 text-center"
               >
-                Login
+                {isSubmitting ? "Logging in...":"Login"}
               </button>
 
               <Link
